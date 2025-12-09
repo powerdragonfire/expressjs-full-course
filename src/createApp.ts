@@ -1,18 +1,20 @@
 import express, { Express } from "express";
 import routes from "./routes/index.js";
 import cookieParser from "cookie-parser";
-import session, { SessionOptions } from "express-session";
+import session, { SessionOptions, Store } from "express-session";
 import passport from "passport";
 import MongoStore from "connect-mongo";
+import createPgStore from "connect-pg-simple";
 import mongoose from "mongoose";
+import { Pool } from "pg";
 import { buildUsersRepo } from "./data/usersRepo.js";
 import { configureLocalStrategy } from "./strategies/local-strategy.js";
 // import "./strategies/discord-strategy.js";
 
-export function createApp(): Express {
+export function createApp(provider?: string): Express {
   const app = express();
-  const provider = process.env.DB_PROVIDER || "mongodb";
-  const usersRepo = buildUsersRepo(provider);
+  const dbProvider = provider || process.env.DB_PROVIDER || "mongodb";
+  const usersRepo = buildUsersRepo(dbProvider);
 
   app.use(express.json());
   app.use(cookieParser("helloworld"));
@@ -26,9 +28,18 @@ export function createApp(): Express {
     },
   };
 
-  if (provider === "mongodb") {
+  if (dbProvider === "mongodb") {
     sessionOptions.store = MongoStore.create({
       client: mongoose.connection.getClient(),
+    });
+  } else if (dbProvider === "postgres") {
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || "postgresql://localhost:5432/expressjs",
+    });
+    const PgStore = createPgStore(session);
+    sessionOptions.store = new PgStore({
+      pool,
+      tableName: "session",
     });
   }
 

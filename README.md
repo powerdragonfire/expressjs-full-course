@@ -33,7 +33,7 @@ curl -X POST http://localhost:3000/api/auth/logout -b cookies.txt
 
 - Set `DB_PROVIDER` to `mongodb` (default), `postgres`, or `supabase`.
 - `mongodb`: uses Mongoose and `connect-mongo` session store; set `MONGO_URI` (defaults to `mongodb://localhost:27017`).
-- `postgres`: stubbed repo; wire a PG client/ORM and session store (e.g., `connect-pg-simple`) before use.
+- `postgres`: uses `pg` driver and `connect-pg-simple` session store; set `DATABASE_URL` (defaults to `postgresql://localhost:5432/expressjs`).
 - `supabase`: intended for client-side Supabase Auth; server repo is stubbed—add `@supabase/supabase-js` and JWT verification to enable.
 
 ## Features
@@ -51,12 +51,50 @@ curl -X POST http://localhost:3000/api/auth/logout -b cookies.txt
 
 ## Installation
 
+### MongoDB Setup (Default)
+
 _Note_: You will need MongoDB running locally on your machine.
 
 1. Clone this repository
 2. Run `npm install`
 3. Run `npm run start:dev`
 4. Server will connect to MongoDB & run on Port 3000.
+
+### PostgreSQL Setup
+
+1. Clone this repository
+2. Run `npm install`
+3. Install PostgreSQL (if not already installed):
+   - **macOS** (using Homebrew): `brew install postgresql`
+   - **Ubuntu/Debian**: `sudo apt-get install postgresql postgresql-contrib`
+   - **Windows**: Download from [postgresql.org](https://www.postgresql.org/download/windows/)
+4. Start PostgreSQL server:
+   - **macOS**: `brew services start postgresql`
+   - **Ubuntu/Debian**: `sudo service postgresql start`
+   - **Windows**: PostgreSQL service should start automatically
+
+5. Create a new database:
+
+   ```bash
+   createdb expressjs
+   ```
+
+6. Initialize the database schema by running the migration script:
+
+   ```bash
+   psql expressjs < db/init.sql
+   ```
+
+7. Create a `.env` file in the project root with the following variables:
+
+   ```bash
+   DB_PROVIDER=postgres
+   DATABASE_URL=postgresql://localhost:5432/expressjs
+   PORT=3000
+   ```
+
+8. Run `npm run start:dev`
+9. Server will connect to PostgreSQL & run on Port 3000.
 
 ## FAQ
 
