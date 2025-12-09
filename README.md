@@ -1,8 +1,40 @@
-# Express JS Full Course Source Code
+# Template-Express
 
-This repository contains the Express API built from my Express JS Full Course video. All of the code written in the video course can be found here.
+## Auth API Quickstart
 
-[![ExpressJSFullCourse](https://github.com/stuyy/expressjs-full-course/assets/25330491/dc3dff94-e1f4-41ed-8ffc-82c3af34da3c)](https://www.youtube.com/watch?v=nH9E25nkk3I)
+- `POST /api/users` – create account. Body JSON: `{ "username": "janedoe", "displayName": "Jane", "password": "secret123" }`. Returns 201 with saved user.
+- `POST /api/auth` – login (Passport Local). Body JSON: `{ "username": "janedoe", "password": "secret123" }`. Sets session cookie.
+- `GET /api/auth/status` – returns the authenticated user or 401 if not logged in.
+- `POST /api/auth/logout` – logs out current session; 200 on success, 401 if not logged in.
+- `GET /api/auth/discord` then `GET /api/auth/discord/redirect` – Discord OAuth flow using Passport Discord.
+
+### Example Requests
+
+```bash
+# Signup
+curl -X POST http://localhost:3000/api/users \
+   -H "Content-Type: application/json" \
+   -d '{"username":"janedoe","displayName":"Jane","password":"secret123"}'
+
+# Login and store session cookie
+curl -X POST http://localhost:3000/api/auth \
+   -H "Content-Type: application/json" \
+   -c cookies.txt \
+   -d '{"username":"janedoe","password":"secret123"}'
+
+# Check auth status with saved cookie
+curl http://localhost:3000/api/auth/status -b cookies.txt
+
+# Logout
+curl -X POST http://localhost:3000/api/auth/logout -b cookies.txt
+```
+
+## Database Provider Options
+
+- Set `DB_PROVIDER` to `mongodb` (default), `postgres`, or `supabase`.
+- `mongodb`: uses Mongoose and `connect-mongo` session store; set `MONGO_URI` (defaults to `mongodb://localhost:27017`).
+- `postgres`: stubbed repo; wire a PG client/ORM and session store (e.g., `connect-pg-simple`) before use.
+- `supabase`: intended for client-side Supabase Auth; server repo is stubbed—add `@supabase/supabase-js` and JWT verification to enable.
 
 ## Features
 
